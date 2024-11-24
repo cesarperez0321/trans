@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Resúmenes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generador de Transcripción y Resúmenes</h1>
+    <label for="video-url">URL del video de YouTube:</label>
+    <input type="text" id="video-url" placeholder="Ingrese la URL del video" style="width: 100%; margin-bottom: 20px;">
+
+    <button onclick="getTranscript()">Obtener Transcripción</button>
+    <textarea id="transcript-box" placeholder="Aquí aparecerá la transcripción..." readonly></textarea>
+
+    <button onclick="generateSummary()">Generar Resumen</button>
+    <textarea id="summary-box" placeholder="Aquí aparecerá el resumen..." readonly></textarea>
+
+    <script>
+        async function getTranscript() {
+            const videoUrl = document.getElementById("video-url").value;
+            const transcriptBox = document.getElementById("transcript-box");
+            const summaryBox = document.getElementById("summary-box");
+
+            transcriptBox.value = "Cargando transcripción...";
+            summaryBox.value = ""; // Limpiar el resumen al cargar una nueva transcripción
+
+            try {
+                const response = await fetch("http://localhost:5000/transcript", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url: videoUrl })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    transcriptBox.value = data.transcript;
+                } else {
+                    transcriptBox.value = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                transcriptBox.value = `Error: ${error.message}`;
+            }
+        }
+
+        async function generateSummary() {
+            const transcriptBox = document.getElementById("transcript-box");
+            const summaryBox = document.getElementById("summary-box");
+
+            const textToSummarize = transcriptBox.value;
+
+            if (!textToSummarize) {
+                summaryBox.value = "Por favor, primero obtén la transcripción del video.";
+                return;
+            }
+
+            summaryBox.value = "Generando resumen...";
+
+            try {
+                const response = await fetch("http://localhost:5000/summarize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: textToSummarize })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    summaryBox.value = data.summary;
+                } else {
+                    summaryBox.value = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                summaryBox.value = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
