@@ -2,12 +2,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import openai
 from youtube_transcript_api import YouTubeTranscriptApi
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Configurar la clave de OpenAI directamente
-openai.api_key = "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"
+# Configurar la clave de OpenAI desde las variables de entorno
+openai.api_key = os.getenv("OPENAI_API_KEY")
+if not openai.api_key:
+    raise ValueError("La clave de OpenAI no está configurada. Establece la variable de entorno 'OPENAI_API_KEY'.")
 
 # Endpoint para obtener la transcripción del video
 @app.route('/transcript', methods=['POST'])
