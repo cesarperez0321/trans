@@ -2,21 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import openai
 from youtube_transcript_api import YouTubeTranscriptApi
-import os
-import json
 
 app = Flask(__name__)
 CORS(app)
 
-# Manejar credenciales de Google desde una variable de entorno
-google_creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-if google_creds:
-    with open("google_credentials.json", "w") as f:
-        f.write(google_creds)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "google_credentials.json"
-
-# Obtener la clave de OpenAI desde las variables de entorno
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Configurar la clave de OpenAI directamente
+openai.api_key = "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"
 
 # Endpoint para obtener la transcripción del video
 @app.route('/transcript', methods=['POST'])
